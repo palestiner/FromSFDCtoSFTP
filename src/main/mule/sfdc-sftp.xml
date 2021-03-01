@@ -33,9 +33,9 @@ output text/html
 payload.body]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<sftp:write doc:name="Write" doc:id="968b69d5-2829-43dc-b824-44fffee50fe9" config-ref="SFTP_Config" path='#[%dw 2.0&#10;&#10;output text/plain&#10;---&#10;&#10;payload.chatTranscriptName ++ "_" ++ (replace(payload.requestTime, /\s*\+*:*/) with(""))&#10;++ "_" ++ payload.owner ++ (replace(payload.channel, /\s+/) with(""))&#10;++ "_" ++ (replace(payload.skill, /\s+/) with(""))]'>
+		<sftp:write doc:name="Write" doc:id="968b69d5-2829-43dc-b824-44fffee50fe9" config-ref="SFTP_Config" path='#[%dw 2.0&#10;&#10;output text/plain&#10;---&#10;&#10;payload.chatTranscriptName ++ "_" ++ (replace(payload.requestTime, /\s*\+*:*/) with(""))&#10;++ "_" ++ payload.owner ++ "_" ++ (replace(payload.channel, /\s+/) with(""))&#10;++ "_" ++ (replace(payload.skill, /\s+/) with("")) ++ ".html"]'>
 			<sftp:content ><![CDATA[#[%dw 2.0
-output text/html
+output text/plain
 ---
 payload.body]]]></sftp:content>
 		</sftp:write>

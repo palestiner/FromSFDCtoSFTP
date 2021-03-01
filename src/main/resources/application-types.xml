@@ -26,11 +26,6 @@ properties:
           <types:payload type="SFDCOutboundMessage"/>
         </types:message>
       </types:input-event>
-      <types:output-event>
-        <types:message>
-          <types:payload type="SFDCOutboundMessage"/>
-        </types:message>
-      </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
 </types:mule>
