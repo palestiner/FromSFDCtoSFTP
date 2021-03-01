@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="724c769e-8437-4cdd-a524-3f336107b21e" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="22c4e75a-7c37-4c05-8b59-b967d9e2750a" >
+		<salesforce:basic-connection username="username@mai.com" password="pass" />
+	</salesforce:sfdc-config>
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="cda0c256-0c69-42c4-b327-bc69d8c4155b" >
+		<sftp:connection host="inmar.files.com" username="yuri.m@inmar-tech.com" password="MeineKatze911_"/>
+	</sftp:config>
+	<flow name="sfdc-sftpFlow" doc:id="a6cb7e2c-b9e0-4c2b-9438-f4a29195cc6d" >
+		<scheduler doc:name="Scheduler" doc:id="b1e6f9e2-d94e-437a-afd9-773b68ad22d5" >
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</scheduler>
+		<salesforce:query doc:name="Query" doc:id="ea9b942e-dda7-4aa9-9f6b-06ddfdfd9e0d" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[select chatTranscriptName, requestTime, owner, channel, skill, body from ]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="aeec8a9a-3750-4e74-9456-e6ab0f299518" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/html
+---
+payload.body]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<sftp:write doc:name="Write" doc:id="968b69d5-2829-43dc-b824-44fffee50fe9" config-ref="SFTP_Config" path='#[%dw 2.0&#10;&#10;output text/plain&#10;---&#10;&#10;payload.chatTranscriptName ++ "_" ++ (replace(payload.requestTime, /\s*\+*:*/) with(""))&#10;++ "_" ++ payload.owner ++ (replace(payload.channel, /\s+/) with(""))&#10;++ "_" ++ (replace(payload.skill, /\s+/) with(""))]'>
+			<sftp:content ><![CDATA[#[%dw 2.0
+output text/html
+---
+payload.body]]]></sftp:content>
+		</sftp:write>
+	</flow>
+</mule>
